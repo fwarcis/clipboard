@@ -11,7 +11,7 @@ import (
 	"clipboard/pkg/cli"
 )
 
-func TryHandleArgsNumber(subCommand subcmds.SubCommand) {
+func RequireLengthOfArguments(subCommand subcmds.SubCommand) {
 	switch subCommand {
 	case subcmds.Copy:
 		if len(cli.Args) == 1 {
@@ -26,7 +26,7 @@ func TryHandleArgsNumber(subCommand subcmds.SubCommand) {
 	}
 }
 
-func TryHandleFlag() string {
+func RequireFileFlag() string {
 	if cli.Args[1] != string(flags.File) {
 		log.Fatalln(view.UndefinedFlagText(cli.Args[1]))
 	}

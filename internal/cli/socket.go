@@ -20,7 +20,8 @@ func OnSocket(subCommand subcmds.SubCommand, path string) {
 	writer := bufio.NewWriter(conn)
 	switch subCommand {
 	case subcmds.Copy:
-		request := string(subcmds.Copy) + " " + cli.LastArg
+		text := cli.LastArg
+		request := string(subcmds.Copy) + " " + text
 		packet.TryAddTo(writer, request)
 		packet.TrySend(writer)
 	case subcmds.Paste:

@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
+	handlers "clipboard/internal/cli"
 	"clipboard/internal/cli/checks"
 	"clipboard/internal/cli/view"
 	"clipboard/internal/common/subcmds"
-	handlers "clipboard/internal/cli"
 
 	"clipboard/pkg/cli"
 )
@@ -22,14 +22,13 @@ func main() {
 
 	subCommand := subcmds.SubCommand(cli.Args[0])
 
-	checks.TryHandleArgsNumber(subCommand)
+	checks.RequireLengthOfArguments(subCommand)
 
 	bufferPath := "@clipboard"
 	hasFlag := len(cli.Args) == 3 || len(cli.Args) == 4
 	if hasFlag {
-		bufferPath = checks.TryHandleFlag()
+		bufferPath = checks.RequireFileFlag()
 		handlers.OnRegularFile(subCommand, bufferPath)
 	}
 	handlers.OnSocket(subCommand, bufferPath)
 }
-
