@@ -26,8 +26,7 @@ func Handler(conn net.Conn, reader *bufio.Reader, writer *bufio.Writer) {
 		log.Println(err.Error())
 		return
 	}
-	subCommand := subcmds.SubCommand(data.SubCommand)
-	switch subCommand {
+	switch data.SubCommand {
 	case subcmds.Copy:
 		bufferText := data.Value
 		if bufferText == "" {
@@ -36,10 +35,16 @@ func Handler(conn net.Conn, reader *bufio.Reader, writer *bufio.Writer) {
 		provider.TermuxClipboardSet(bufferText)
 		packet.TryWriteBlock(writer, Success)
 		packet.TrySendWriten(writer)
+		logln(subcmds.Paste, bufferText)
 	case subcmds.Paste:
 		packet.TryWriteBlock(writer, Success)
 		bufferText := provider.TermuxClipboardGet()
 		packet.TryWrite(writer, bufferText)
 		packet.TrySendWriten(writer)
+		logln(subcmds.Paste, bufferText)
 	}
+}
+
+func logln(subCommand subcmds.SubCommand, text string) {
+	log.Println(string(subCommand) + ": " + text + "\x00\t\x00\n\x00\n")
 }
