@@ -12,6 +12,11 @@ const (
 	Paste SubCommand = "paste"
 )
 
+const (
+	OnCopyMaxArgs  = 1
+	OnPasteMaxArgs = 0
+)
+
 var List = []SubCommand{Copy, Paste}
 
 func Exists(text string) bool {

@@ -1,4 +1,4 @@
-// Package valueargs
+// Package values
 package values
 
 import "clipboard/internal/common/subcmds"

@@ -3,53 +3,41 @@ package cli
 import (
 	"bufio"
 	"log"
-	"net"
 	"strconv"
 
 	"clipboard/internal/common/subcmds"
 	"clipboard/internal/socket/packet"
-	cliutils "clipboard/pkg/cli-utils"
 )
 
-func OnSocket(subCommand subcmds.SubCommand, path string) {
-	conn, err := net.Dial("unix", path)
+func Copy(reader *bufio.Reader, writer *bufio.Writer, text string) {
+	packet.TrySendHeaderAndBody(writer,
+		string(subcmds.Copy), text)
+
+	response, err := packet.NextPacket(reader)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	defer conn.Close()
-
-	writer := bufio.NewWriter(conn)
-	reader := bufio.NewReader(conn)
-	switch subCommand {
-	case subcmds.Copy:
-		text := cliutils.LastArg
-		packet.TrySendHeaderAndBody(writer,
-			 string(subcmds.Copy), text)
-
-		response, err := packet.NextPacket(reader)
-		if err != nil {
-			log.Fatalln(err.Error())
-		}
-		respData := tryParse(response)
-		if respData.Code != 0 {
-			log.Fatalln(respData.Message)
-		}
-	case subcmds.Paste:
-		request := string(subcmds.Paste)
-		packet.TryWriteBlock(writer, request)
-		packet.TrySendWriten(writer)
-
-		response, err := packet.NextPacket(reader)
-		if err != nil {
-			log.Fatalln(err.Error())
-		}
-		respData := tryParse(response)
-		if respData.Code != 0 {
-			log.Fatalln(respData.Message)
-		}
-
-		print(respData.Message)
+	respData := tryParse(response)
+	if respData.Code != 0 {
+		log.Fatalln(respData.Message)
 	}
+}
+
+func Paste(reader *bufio.Reader, writer *bufio.Writer) string {
+	request := string(subcmds.Paste)
+	packet.TryWriteBlock(writer, request)
+	packet.TrySendWriten(writer)
+
+	response, err := packet.NextPacket(reader)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	respData := tryParse(response)
+	if respData.Code != 0 {
+		log.Fatalln(respData.Message)
+	}
+
+	return respData.Message
 }
 
 func tryParse(response []string) ServerResponseData {
@@ -64,7 +52,6 @@ func tryParse(response []string) ServerResponseData {
 }
 
 type ServerResponseData struct {
-	Code int
+	Code    int
 	Message string
 }
-

@@ -1,2 +1,0 @@
-// Package view
-package view
