@@ -6,9 +6,8 @@ import (
 	"strings"
 )
 
-
 const (
-	EndOfBlock byte = 29
+	EndOfBlock  byte = 29
 	EndOfPacket byte = '\x00'
 )
 
@@ -50,11 +49,10 @@ func NextPacket(reader *bufio.Reader) ([]string, error) {
 	} else if packetContent == string(EndOfBlock) {
 		return nil, &OnlyEndOfBlockError{Content: packetContent}
 	}
-	
+
 	packetParts := strings.SplitN(packetContent, string(EndOfBlock), 2)
 	if packetParts[0] == "" {
 		return packetParts, &NoHeaderError{Content: packetContent}
 	}
 	return packetParts, nil
 }
-
