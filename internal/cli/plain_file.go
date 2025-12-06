@@ -1,4 +1,4 @@
-package handlers
+package cli
 
 import (
 	"io"
@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"clipboard/internal/common/subcmds"
-	"clipboard/pkg/cli"
+	cliutils "clipboard/pkg/cli-utils"
 	"clipboard/pkg/fsys"
 )
 
@@ -19,7 +19,7 @@ func OnRegularFile(subCommand subcmds.SubCommand, path string) {
 		}
 		defer file.Close()
 
-		text := cli.LastArg
+		text := cliutils.LastArg
 		file.WriteString(text)
 	case subcmds.Paste:
 		file, err := os.OpenFile(path, os.O_RDONLY, fsys.URDWR)

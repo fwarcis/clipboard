@@ -1,7 +1,9 @@
 // Package subcmds
 package subcmds
 
-import "slices"
+import (
+	"slices"
+)
 
 type SubCommand string
 
@@ -14,4 +16,12 @@ var List = []SubCommand{Copy, Paste}
 
 func Exists(text string) bool {
 	return slices.Contains(List, SubCommand(text))
+}
+
+type UndefinedSubCommandError struct {
+	SubCommandText string
+}
+
+func (err *UndefinedSubCommandError) Error() string {
+	return "error: undefined subcommand: " + err.SubCommandText
 }

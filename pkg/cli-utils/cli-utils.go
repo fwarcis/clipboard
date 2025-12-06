@@ -1,4 +1,5 @@
-package cli
+// Package cliutils
+package cliutils
 
 import "os"
 
@@ -7,4 +8,3 @@ var (
 	Args     = os.Args[1:]
 	LastArg  = os.Args[len(os.Args)-1]
 )
-

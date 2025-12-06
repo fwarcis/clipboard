@@ -1,4 +1,4 @@
-package view
+package cli
 
 import (
 	"fmt"
@@ -12,14 +12,10 @@ func MissingArgumentsText(missings ...string) string {
 	return ErrorText(fmt.Sprintf("missing arguments: %s", missings))
 }
 
-func UndefinedSubCommandText(text string) string {
-	return ErrorText(fmt.Sprintf("undefined subcommand: %s", text))
-}
-
 func UndefinedFlagText(text string) string {
 	return ErrorText(fmt.Sprintf("undefined flag: %s", text))
 }
 
 func ErrorText(text string) string {
-	return fmt.Sprintf("%s: error: %s", ProgramName, text)
+	return fmt.Sprintf("clipboard: error: %s", text)
 }

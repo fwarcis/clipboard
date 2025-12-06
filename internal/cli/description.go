@@ -1,2 +1,2 @@
-// Package handlers
-package handlers
+// Package cli
+package cli

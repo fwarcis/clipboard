@@ -7,25 +7,25 @@ import (
 	"clipboard/internal/cli/checks"
 	"clipboard/internal/cli/view"
 	"clipboard/internal/common/subcmds"
-
-	"clipboard/pkg/cli"
+	cliutils "clipboard/pkg/cli-utils"
 )
 
 func main() {
 	log.SetFlags(0)
 
-	if len(cli.Args) == 0 {
+	if len(cliutils.Args) == 0 {
 		log.Fatalln(view.Help())
-	} else if !subcmds.Exists(cli.Args[0]) {
-		log.Fatalln(view.UndefinedSubCommandText(cli.Args[0]))
+	} else if !subcmds.Exists(cliutils.Args[0]) {
+		err := subcmds.UndefinedSubCommandError{SubCommandText: cliutils.Args[0]}
+		log.Fatalln("clipboard: " + err.Error())
 	}
 
-	subCommand := subcmds.SubCommand(cli.Args[0])
+	subCommand := subcmds.SubCommand(cliutils.Args[0])
 
 	checks.RequireLengthOfArguments(subCommand)
 
 	bufferPath := "@clipboard"
-	hasFlag := len(cli.Args) == 3 || len(cli.Args) == 4
+	hasFlag := len(cliutils.Args) == 3 || len(cliutils.Args) == 4
 	if hasFlag {
 		bufferPath = checks.RequireFileFlag()
 		handlers.OnRegularFile(subCommand, bufferPath)

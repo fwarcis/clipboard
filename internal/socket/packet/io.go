@@ -4,55 +4,59 @@ import (
 	"bufio"
 	"log"
 	"strings"
-
-	netio "clipboard/pkg/net-io"
 )
 
-func TryAddTo(writer *bufio.Writer, part string) {
+
+const (
+	EndOfBlock byte = 29
+	EndOfPacket byte = '\x00'
+)
+
+func TryWrite(writer *bufio.Writer, part string) {
 	_, err := writer.WriteString(part)
 	if err != nil {
 		log.Println(err.Error())
 	}
 }
 
-func TrySend(writer *bufio.Writer) {
-	TryAddTo(writer, string(netio.EndOfPacket))
+func TryWriteBlock(writer *bufio.Writer, content string) {
+	TryWrite(writer, content+string(EndOfBlock))
+}
+
+func TrySendWriten(writer *bufio.Writer) {
+	TryWrite(writer, string(EndOfPacket))
 	err := writer.Flush()
 	if err != nil {
 		log.Println(err.Error())
 	}
 }
 
-func TryGetContent(reader *bufio.Reader) string {
-	packet, err := reader.ReadString(netio.EndOfPacket)
+func TrySendHeaderAndBody(writer *bufio.Writer, header, body string) {
+	TryWriteBlock(writer, header)
+	TryWrite(writer, body)
+	TrySendWriten(writer)
+}
+
+func NextPacket(reader *bufio.Reader) ([]string, error) {
+	packet, err := reader.ReadString(EndOfPacket)
 	if err != nil {
 		log.Println(err.Error())
 	}
-	return packet[:len(packet)-1]
-}
 
-func Header(content string) (string, error) {
-	splited := splitHeaderAndBody(content)
+	packetContent := packet[:len(packet)-1]
 
-	if splited == nil {
-		return "", &NullContentError{}
+	if !strings.ContainsRune(packetContent, rune(EndOfBlock)) {
+		return nil, &NoEndOfBlockError{Content: packetContent}
+	} else if packetContent == string(EndOfBlock) {
+		return nil, &OnlyEndOfBlockError{Content: packetContent}
 	}
-	return splited[0], nil
-}
-
-func Body(content string) (string, error) {
-	splited := splitHeaderAndBody(content)
-
-	if splited == nil {
-		return "", &NullContentError{}
+	
+	packetParts := strings.SplitN(packetContent, string(EndOfBlock), 2)
+	
+	if packetParts[0] == "" {
+		return nil, &NoHeaderError{Content: packetContent}
 	}
-
-	if len(splited) == 1 {
-		return "", nil
-	}
-	return splited[1], nil
+	
+	return packetParts, nil
 }
 
-func splitHeaderAndBody(content string) []string {
-	return strings.SplitN(content, " ", 2)
-}
