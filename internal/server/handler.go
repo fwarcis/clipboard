@@ -35,7 +35,7 @@ func Handler(conn net.Conn, reader *bufio.Reader, writer *bufio.Writer) {
 		provider.TermuxClipboardSet(bufferText)
 		packet.TryWriteBlock(writer, Success)
 		packet.TrySendWriten(writer)
-		logln(subcmds.Paste, bufferText)
+		logln(subcmds.Copy, bufferText)
 	case subcmds.Paste:
 		packet.TryWriteBlock(writer, Success)
 		bufferText := provider.TermuxClipboardGet()
