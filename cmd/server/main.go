@@ -15,7 +15,6 @@ func main() {
 	}
 	defer listener.Close()
 
-	bufferText := ""
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -25,6 +24,6 @@ func main() {
 		reader := bufio.NewReader(conn)
 		writer := bufio.NewWriter(conn)
 
-		go server.Handler(conn, reader, writer, &bufferText)
+		go server.Handler(conn, reader, writer)
 	}
 }

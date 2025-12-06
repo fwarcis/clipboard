@@ -5,11 +5,12 @@ import (
 	"log"
 	"net"
 
+	"clipboard/internal/cli/provider"
 	"clipboard/internal/common/subcmds"
 	"clipboard/internal/socket/packet"
 )
 
-func Handler(conn net.Conn, reader *bufio.Reader, writer *bufio.Writer, bufferStorage *string) {
+func Handler(conn net.Conn, reader *bufio.Reader, writer *bufio.Writer) {
 	defer conn.Close()
 
 	request, err := packet.NextPacket(reader)
@@ -28,15 +29,17 @@ func Handler(conn net.Conn, reader *bufio.Reader, writer *bufio.Writer, bufferSt
 	subCommand := subcmds.SubCommand(data.SubCommand)
 	switch subCommand {
 	case subcmds.Copy:
-		if data.Value == "" {
+		bufferText := data.Value
+		if bufferText == "" {
 			return
 		}
-		*bufferStorage = data.Value
+		provider.TermuxClipboardSet(bufferText)
 		packet.TryWriteBlock(writer, Success)
 		packet.TrySendWriten(writer)
 	case subcmds.Paste:
 		packet.TryWriteBlock(writer, Success)
-		packet.TryWrite(writer, *bufferStorage)
+		bufferText := provider.TermuxClipboardGet()
+		packet.TryWrite(writer, bufferText)
 		packet.TrySendWriten(writer)
 	}
 }

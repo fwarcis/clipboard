@@ -40,7 +40,7 @@ func TrySendHeaderAndBody(writer *bufio.Writer, header, body string) {
 func NextPacket(reader *bufio.Reader) ([]string, error) {
 	packet, err := reader.ReadString(EndOfPacket)
 	if err != nil {
-		log.Println(err.Error())
+		return nil, err
 	}
 
 	packetContent := packet[:len(packet)-1]
@@ -52,11 +52,9 @@ func NextPacket(reader *bufio.Reader) ([]string, error) {
 	}
 	
 	packetParts := strings.SplitN(packetContent, string(EndOfBlock), 2)
-	
 	if packetParts[0] == "" {
-		return nil, &NoHeaderError{Content: packetContent}
+		return packetParts, &NoHeaderError{Content: packetContent}
 	}
-	
 	return packetParts, nil
 }
 
